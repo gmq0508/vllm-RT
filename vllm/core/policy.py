@@ -34,12 +34,31 @@ class FCFS(Policy):
         seq_group: SequenceGroup,
     ) -> float:
         return now - seq_group.arrival_time
+    
+class EDF(Policy):
 
+    def get_priority(
+        self,
+        now: float,
+        seq_group: SequenceGroup,
+    ) -> float:
+        return now - seq_group.absolute_deadline
 
+class PRIORITY(Policy):
+
+    def get_priority(
+        self,
+        now: float,
+        seq_group: SequenceGroup,
+    ) -> float:
+        return seq_group.priority
+    
 class PolicyFactory:
 
     _POLICY_REGISTRY = {
         'fcfs': FCFS,
+        'edf': EDF,
+        'priority': PRIORITY,
     }
 
     @classmethod

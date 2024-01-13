@@ -316,6 +316,9 @@ class LLMEngine:
         request_id: str,
         prompt: Optional[str],
         sampling_params: SamplingParams,
+        relative_deadline: Optional[float]=None,
+        # weight: Optional[int]=None,
+        priority: Optional[int]=None,
         prompt_token_ids: Optional[List[int]] = None,
         arrival_time: Optional[float] = None,
     ) -> None:
@@ -337,6 +340,12 @@ class LLMEngine:
         """
         if arrival_time is None:
             arrival_time = time.monotonic()
+        if relative_deadline is not None:
+            absolute_deadline=arrival_time+relative_deadline
+        else:
+            absolute_deadline=None
+        if priority is None:
+            priority=0
         if prompt_token_ids is None:
             assert prompt is not None
             prompt_token_ids = self.tokenizer.encode(prompt)
@@ -348,7 +357,7 @@ class LLMEngine:
 
         # Create the sequence group.
         seq_group = SequenceGroup(request_id, [seq], sampling_params,
-                                  arrival_time)
+                                  arrival_time, absolute_deadline, priority)
 
         # Add the sequence group to the scheduler.
         self.scheduler.add_seq_group(seq_group)
